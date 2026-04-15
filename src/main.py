@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from audio_io import load_audio
-from transform import mid_side_encode
+from transform import mid_side_encode, mid_side_decode, energy_analysis, pca_decorrelation
 from compression import compress_data
 from metrics import compute_compression_ratio
 from analysis import split_channels, compute_correlation_matrix, plot_correlation_heatmap
@@ -13,20 +13,17 @@ print("Sample rate:", sr)
 print("Shape:", data.shape)
 
 #phan tich kenh
-from analysis import split_channels, compute_correlation_matrix, plot_correlation_heatmap
 
 channels = split_channels(data)
 print("Number of channels:", len(channels))
 
-corr_matrix = compute_correlation_matrix(data)
+corr_before = compute_correlation_matrix(data)
 
-print("Correlation matrix:")
-print(corr_matrix)
+print("Correlation BEFORE:")
+print(corr_before)
 
-plot_correlation_heatmap(corr_matrix)
+plot_correlation_heatmap(corr_before)
 
-plt.xticks(range(corr_matrix.shape[0]))
-plt.yticks(range(corr_matrix.shape[0]))
 #xu li kenh
 if data.shape[1] == 1:
     print("Mono audio detected")
@@ -36,20 +33,47 @@ else:
     L = data[:, 0]
     R = data[:, 1]
 
-#transform mid/side
+#mid/side encode
 mid, side = mid_side_encode(L, R)
 
-combined = np.stack([mid, side], axis=1)
+combined_ms = np.stack([mid, side], axis=1)
 
-#correlation sau Mid/Side
-combined = np.stack([mid, side], axis=1)
-corr_after = compute_correlation_matrix(combined)
+#phan tich nang luong
+energy_lr, energy_ms, reduction, ratio = energy_analysis(L, R, mid, side)
 
-print("Correlation after Mid/Side:")
-print(corr_after)
+print("Energy (L+R):", energy_lr)
+print("Energy (M+S):", energy_ms)
+print("Energy reduction:", reduction)
+print("Energy ratio:", ratio)
 
+#correlation sau Mid/Side 
+corr_ms = compute_correlation_matrix(combined_ms)
+
+print("Correlation AFTER Mid/Side:")
+print(corr_ms)
+#mid/side decode
+L_rec, R_rec = mid_side_decode(mid, side)
+
+error = np.mean((L - L_rec)**2 + (R - R_rec)**2)
+print("Reconstruction error:", error)
+
+#PCA decorrelation
+transformed_pca, eigvecs, mean = pca_decorrelation(data)
+
+corr_pca = compute_correlation_matrix(transformed_pca)
+
+print("Correlation AFTER PCA:")
+print(corr_pca)
+#metric so sanh correlation
+def off_diag_mean(corr):
+    return np.mean(np.abs(corr - np.eye(corr.shape[0])))
+
+print("Off-diagonal correlation:")
+print("Before:", off_diag_mean(corr_before))
+print("Mid/Side:", off_diag_mean(corr_ms))
+print("PCA:", off_diag_mean(corr_pca))
 #nén
-compressed = compress_data(combined)
+compressed = compress_data(combined_ms)
 
 #metrics
 original_size = data.nbytes
