@@ -111,4 +111,3 @@ print("Compression ratio:", cr)
 plt.plot(data[:1000, 0])
 plt.title("Channel 0 waveform")
 plt.show()
-#test123
