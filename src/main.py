@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from audio_io import load_audio
 from transform import mid_side_encode, mid_side_decode, energy_analysis, pca_decorrelation
 from compression import compress_data
+from coupling import compute_fft, frequency_coupling, plot_spectrum, inverse_fft
 from metrics import compute_compression_ratio
 from analysis import split_channels, compute_correlation_matrix, plot_correlation_heatmap
 #load audio
@@ -72,8 +73,29 @@ print("Off-diagonal correlation:")
 print("Before:", off_diag_mean(corr_before))
 print("Mid/Side:", off_diag_mean(corr_ms))
 print("PCA:", off_diag_mean(corr_pca))
+
+#FFT
+freqs, M_spec, _ = compute_fft(mid, sr)
+_, S_spec, _ = compute_fft(side, sr)
+
+#high-freq coupling
+M_coupled, S_coupled = frequency_coupling(M_spec, S_spec, freqs)
+# Energy check (optional nhưng nên giữ)
+
+high_energy_before = np.sum(np.abs(L_spec[freqs > 4000])**2)
+high_energy_after = np.sum(np.abs(L_coupled[freqs > 4000])**2)
+
+print("High-frequency energy BEFORE:", high_energy_before)
+print("High-frequency energy AFTER:", high_energy_after)
+
+# Inverse FFT
+
+M_time = inverse_fft(M_coupled)
+S_time = inverse_fft(S_coupled)
+
+combined_coupled = np.stack([M_time, S_time], axis=1)
 #nén
-compressed = compress_data(combined_ms)
+compressed = compress_data(combined_coupled)
 
 #metrics
 original_size = data.nbytes
@@ -89,3 +111,4 @@ print("Compression ratio:", cr)
 plt.plot(data[:1000, 0])
 plt.title("Channel 0 waveform")
 plt.show()
+#test123
