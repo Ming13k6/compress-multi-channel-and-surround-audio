@@ -5,8 +5,9 @@ from audio_io import load_audio
 from transform import mid_side_encode, mid_side_decode, energy_analysis, pca_decorrelation
 from compression import compress_data
 from coupling import compute_fft, frequency_coupling, plot_spectrum, inverse_fft
-from metrics import compute_compression_ratio
+from metrics import compute_compression_ratio, compute_snr
 from analysis import split_channels, compute_correlation_matrix, plot_correlation_heatmap
+from reconstruction import reconstruct_from_ms
 #load audio
 data, sr = load_audio("data/test.wav")
 
@@ -52,19 +53,21 @@ corr_ms = compute_correlation_matrix(combined_ms)
 
 print("Correlation AFTER Mid/Side:")
 print(corr_ms)
-#mid/side decode
+plot_correlation_heatmap(corr_ms)
+#decode check
 L_rec, R_rec = mid_side_decode(mid, side)
 
 error = np.mean((L - L_rec)**2 + (R - R_rec)**2)
 print("Reconstruction error:", error)
 
 #PCA decorrelation
-transformed_pca, eigvecs, mean = pca_decorrelation(data)
+transformed, eigvecs, mean = pca_decorrelation(data)
 
-corr_pca = compute_correlation_matrix(transformed_pca)
+corr_pca = compute_correlation_matrix(transformed)
 
 print("Correlation AFTER PCA:")
 print(corr_pca)
+plot_correlation_heatmap(corr_pca)
 #metric so sanh correlation
 def off_diag_mean(corr):
     return np.mean(np.abs(corr - np.eye(corr.shape[0])))
@@ -74,6 +77,15 @@ print("Before:", off_diag_mean(corr_before))
 print("Mid/Side:", off_diag_mean(corr_ms))
 print("PCA:", off_diag_mean(corr_pca))
 
+
+#chuẩn hóa
+def normalize(x):
+    m = np.max(np.abs(x))
+    return x / m if m > 0 else x
+
+mid = normalize(mid)
+side = normalize(side)
+
 #FFT
 freqs, M_spec, _ = compute_fft(mid, sr)
 _, S_spec, _ = compute_fft(side, sr)
@@ -82,8 +94,8 @@ _, S_spec, _ = compute_fft(side, sr)
 M_coupled, S_coupled = frequency_coupling(M_spec, S_spec, freqs)
 # Energy check (optional nhưng nên giữ)
 
-high_energy_before = np.sum(np.abs(L_spec[freqs > 4000])**2)
-high_energy_after = np.sum(np.abs(L_coupled[freqs > 4000])**2)
+high_energy_before = np.sum(np.abs(M_spec[freqs > 4000])**2)
+high_energy_after = np.sum(np.abs(M_coupled[freqs > 4000])**2)
 
 print("High-frequency energy BEFORE:", high_energy_before)
 print("High-frequency energy AFTER:", high_energy_after)
@@ -94,6 +106,15 @@ M_time = inverse_fft(M_coupled)
 S_time = inverse_fft(S_coupled)
 
 combined_coupled = np.stack([M_time, S_time], axis=1)
+
+# reconstruct từ Mid/Side sau coupling
+reconstructed = reconstruct_from_ms(M_time, S_time)
+
+snr = compute_snr(data, reconstructed)
+
+print("SNR:", snr)
+plot_spectrum(freqs, np.abs(M_spec), np.abs(M_coupled),
+            "Mid Channel Spectrum Before vs After Coupling")
 #nén
 compressed = compress_data(combined_coupled)
 
@@ -106,6 +127,15 @@ cr = compute_compression_ratio(original_size, compressed_size)
 print("Original size:", original_size)
 print("Compressed size:", compressed_size)
 print("Compression ratio:", cr)
+
+#so sánh với pipeline chỉ Mid/Side
+compressed_ms = compress_data(combined_ms)
+
+cr_ms = compute_compression_ratio(original_size, len(compressed_ms))
+cr_coupled = compute_compression_ratio(original_size, compressed_size)
+
+print("CR Mid/Side:", cr_ms)
+print("CR Coupling:", cr_coupled)
 
 #visualization
 plt.plot(data[:1000, 0])
