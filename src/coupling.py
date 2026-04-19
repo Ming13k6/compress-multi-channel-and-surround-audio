@@ -1,56 +1,63 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Fast Fourier Transform 
-def compute_fft(signal, sr):
-    N = len(signal)
-    spectrum = np.fft.rfft(signal)
-    freqs = np.fft.rfftfreq(N, 1/sr)
-    magnitude = np.abs(spectrum)
-    return freqs, spectrum, magnitude
 
-
-#Identify high-freq bands
-def split_frequency_bands(freqs, cutoff=4000):
-#cutoff: hz
+#Tách band
+def split_bands(M, sr, cutoff=4000):
+    freqs = np.linspace(0, sr/2, M)
     low_idx = freqs <= cutoff
     high_idx = freqs > cutoff
+    return low_idx, high_idx, freqs
 
-    return low_idx, high_idx
+
+#MDCT coupling
+def mdct_coupling(channels_mdct, sr, cutoff=4000):
+    X = np.stack(channels_mdct, axis=2)  
+    # shape: (num_blocks, M, C)
+
+    num_blocks, M, C = X.shape
+
+    low_idx, high_idx, freqs = split_bands(M, sr, cutoff)
+
+    X_coupled = X.copy()
+
+    #xử lý từng block (quan trọng)
+    for b in range(num_blocks):
+
+        #lấy block (M, C)
+        block = X[b]
+
+        #high freq energy trung bình
+        high_energy = np.mean(np.abs(block[high_idx]), axis=1, keepdims=True)
+
+        #apply coupling
+        block_coupled = block.copy()
+        block_coupled[high_idx] = np.sign(block[high_idx]) * high_energy
+
+        X_coupled[b] = block_coupled
+
+    return X_coupled, freqs
 
 
-#Frequency coupling
-def frequency_coupling(L_spec, R_spec, freqs, cutoff=4000):
-    low_idx, high_idx = split_frequency_bands(freqs, cutoff)
+#Energy scaling
+def energy_scaling(X):
+    scale = np.max(np.abs(X), axis=(0,1), keepdims=True)
+    scale[scale == 0] = 1
+    return X / scale, scale
 
-    #high freq: average
-    avg_high = (np.abs(L_spec) + np.abs(R_spec)) / 2
 
-    #giữ phase riêng
-    L_phase = np.exp(1j * np.angle(L_spec))
-    R_phase = np.exp(1j * np.angle(R_spec))
+def inverse_scaling(X_scaled, scale):
+    return X_scaled * scale
 
-    #áp coupling
-    L_coupled = L_spec.copy()
-    R_coupled = R_spec.copy()
 
-    L_coupled[high_idx] = avg_high[high_idx] * L_phase[high_idx]
-    R_coupled[high_idx] = avg_high[high_idx] * R_phase[high_idx]
-
-    return L_coupled, R_coupled
-
-#inverse FFT
-def inverse_fft(spectrum):
-    return np.fft.irfft(spectrum)
-
-#Plot spectrum
-def plot_spectrum(freqs, mag_before, mag_after, title):
+#Plot
+def plot_mdct_spectrum(freqs, before, after, title):
     plt.figure(figsize=(8,4))
-    plt.plot(freqs, mag_before, label="Before")
-    plt.plot(freqs, mag_after, label="After", alpha=0.7)
+    plt.plot(freqs, np.abs(before), label="Before")
+    plt.plot(freqs, np.abs(after), label="After", alpha=0.7)
     plt.title(title)
     plt.xlabel("Frequency (Hz)")
     plt.ylabel("Magnitude")
     plt.legend()
-    plt.xlim(0, 8000)  # zoom cho dễ nhìn
+    plt.xlim(0, 8000)
     plt.show()

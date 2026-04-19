@@ -1,13 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from audio_io import load_audio
-from transform import mid_side_encode, mid_side_decode, energy_analysis, pca_decorrelation
-from compression import compress_data
-from coupling import compute_fft, frequency_coupling, plot_spectrum, inverse_fft
+from audio_io import load_audio, save_audio
+from transform import pca_decorrelation
+from compression import compress_data, decompress_data
+from coupling import mdct_coupling, plot_mdct_spectrum
 from metrics import compute_compression_ratio, compute_snr
 from analysis import split_channels, compute_correlation_matrix, plot_correlation_heatmap
-from reconstruction import reconstruct_from_ms
+from residual import compute_residual, reconstruct_from_residual, residual_analysis
+from mdct import mdct, imdct
 #load audio
 data, sr = load_audio("data/test.wav")
 
@@ -15,7 +16,6 @@ print("Sample rate:", sr)
 print("Shape:", data.shape)
 
 #phan tich kenh
-
 channels = split_channels(data)
 print("Number of channels:", len(channels))
 
@@ -26,118 +26,128 @@ print(corr_before)
 
 plot_correlation_heatmap(corr_before)
 
-#xu li kenh
-if data.shape[1] == 1:
-    print("Mono audio detected")
-    L = data[:, 0]
-    R = data[:, 0]
-else:
-    L = data[:, 0]
-    R = data[:, 1]
+###########################
+#      ENCODE             #
+###########################
 
-#mid/side encode
-mid, side = mid_side_encode(L, R)
-
-combined_ms = np.stack([mid, side], axis=1)
-
-#phan tich nang luong
-energy_lr, energy_ms, reduction, ratio = energy_analysis(L, R, mid, side)
-
-print("Energy (L+R):", energy_lr)
-print("Energy (M+S):", energy_ms)
-print("Energy reduction:", reduction)
-print("Energy ratio:", ratio)
-
-#correlation sau Mid/Side 
-corr_ms = compute_correlation_matrix(combined_ms)
-
-print("Correlation AFTER Mid/Side:")
-print(corr_ms)
-plot_correlation_heatmap(corr_ms)
-#decode check
-L_rec, R_rec = mid_side_decode(mid, side)
-
-error = np.mean((L - L_rec)**2 + (R - R_rec)**2)
-print("Reconstruction error:", error)
-
-#PCA decorrelation
+#PCA
 transformed, eigvecs, mean = pca_decorrelation(data)
 
-corr_pca = compute_correlation_matrix(transformed)
+#chứng minh PCA orthogonal
+energy_before = np.sum(data**2)
+energy_after = np.sum(transformed**2)
 
-print("Correlation AFTER PCA:")
-print(corr_pca)
-plot_correlation_heatmap(corr_pca)
-#metric so sanh correlation
-def off_diag_mean(corr):
-    return np.mean(np.abs(corr - np.eye(corr.shape[0])))
+print("Energy difference (PCA):", abs(energy_before - energy_after))
 
-print("Off-diagonal correlation:")
-print("Before:", off_diag_mean(corr_before))
-print("Mid/Side:", off_diag_mean(corr_ms))
-print("PCA:", off_diag_mean(corr_pca))
+#MDCT per channel
+channels_mdct = []
+scales = []
 
+for i in range(transformed.shape[1]):
+    ch = transformed[:, i]
 
-#chuẩn hóa
-def normalize(x):
-    m = np.max(np.abs(x))
-    return x / m if m > 0 else x
+    m = np.max(np.abs(ch))
+    scales.append(m if m > 0 else 1)
 
-mid = normalize(mid)
-side = normalize(side)
+    ch_norm = ch / m if m > 0 else ch
 
-#FFT
-freqs, M_spec, _ = compute_fft(mid, sr)
-_, S_spec, _ = compute_fft(side, sr)
+    coeffs = mdct(ch_norm)
+    channels_mdct.append(coeffs)
 
-#high-freq coupling
-M_coupled, S_coupled = frequency_coupling(M_spec, S_spec, freqs)
-# Energy check (optional nhưng nên giữ)
+scales = np.array(scales)
 
-high_energy_before = np.sum(np.abs(M_spec[freqs > 4000])**2)
-high_energy_after = np.sum(np.abs(M_coupled[freqs > 4000])**2)
+#coupling
+X_coupled, freqs = mdct_coupling(channels_mdct, sr)
 
-print("High-frequency energy BEFORE:", high_energy_before)
-print("High-frequency energy AFTER:", high_energy_after)
+plot_mdct_spectrum(freqs, channels_mdct[0], X_coupled[:,0],
+                   "MDCT Spectrum Before vs After Coupling")
 
-# Inverse FFT
+#residual
+residual = compute_residual(combined_mdct)
 
-M_time = inverse_fft(M_coupled)
-S_time = inverse_fft(S_coupled)
+residual_analysis(combined_mdct, residual)
 
-combined_coupled = np.stack([M_time, S_time], axis=1)
+#histogram dùng sample
+plt.figure()
+plt.hist(residual_flat, bins=100, density=True)
+plt.title("Residual Distribution (Zoomed)")
+plt.xlim(-0.1, 0.1)
+plt.show()
 
-# reconstruct từ Mid/Side sau coupling
-reconstructed = reconstruct_from_ms(M_time, S_time)
+residual_flat = residual.flatten()
+residual_flat = residual_flat[:50000]
 
-snr = compute_snr(data, reconstructed)
-
-print("SNR:", snr)
-plot_spectrum(freqs, np.abs(M_spec), np.abs(M_coupled),
-            "Mid Channel Spectrum Before vs After Coupling")
 #nén
-compressed = compress_data(combined_coupled)
+compressed = compress_data(residual)
+
+###########################
+#    DECODE               #
+###########################
+
+#reconstruct
+residual_decoded = decompress_data(compressed, residual.shape)
+reconstructed_res = reconstruct_from_residual(residual_decoded)
+
+#inverse MDCT
+channels_time = []
+
+for i in range(X_coupled.shape[1]):
+    recon = imdct(X_coupled[:, i])
+
+    # restore scale
+    recon = recon * scales[i]
+
+    channels_time.append(recon)
+
+combined_mdct = np.stack(channels_time, axis=1)
+ 
+
+
+
+
+#inverse PCA
+reconstructed = reconstructed_res @ eigvecs.T + mean
+
+#align length
+min_len = min(len(data), len(reconstructed))
+snr = compute_snr(data[:min_len], reconstructed[:min_len])
+
+print("SNR (FULL PIPELINE):", snr)
+
+#lưu file
+save_audio("output/reconstructed.wav", reconstructed, sr)
+
 
 #metrics
+
+#tính CR 
 original_size = data.nbytes
 compressed_size = len(compressed)
-
 cr = compute_compression_ratio(original_size, compressed_size)
 
+bitrate = (compressed_size * 8 * sr) / len(data)
+bitrate_per_channel = bitrate / data.shape[1]
+
+print("Bitrate (bps):", bitrate)
+print("Bitrate per channel:", bitrate_per_channel)
 print("Original size:", original_size)
 print("Compressed size:", compressed_size)
 print("Compression ratio:", cr)
 
-#so sánh với pipeline chỉ Mid/Side
-compressed_ms = compress_data(combined_ms)
+#tính CR raw (zlib nén trực tiếp file gốc)
+compressed_raw = compress_data(data)
+cr_raw = compute_compression_ratio(original_size, len(compressed_raw))
 
-cr_ms = compute_compression_ratio(original_size, len(compressed_ms))
-cr_coupled = compute_compression_ratio(original_size, compressed_size)
+print("CR Raw:", cr_raw)
+print("CR PCA+MDCT+Residual:", cr)
 
-print("CR Mid/Side:", cr_ms)
-print("CR Coupling:", cr_coupled)
+
+#độ hiệu quả nén
+improvement = cr / cr_raw
+print("Compression improvement:", improvement)
 
 #visualization
+plt.figure()
 plt.plot(data[:1000, 0])
 plt.title("Channel 0 waveform")
 plt.show()

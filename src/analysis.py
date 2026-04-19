@@ -7,12 +7,13 @@ def split_channels(data):
 
 #tinh correlation matrix 
 def compute_correlation_matrix(data):
-    # data shape: (samples, channels)
-    return np.corrcoef(data.T)
+    corr = np.corrcoef(data.T)
+    corr = np.nan_to_num(corr)
+    return corr
 
 #visualize heatmap
 def plot_correlation_heatmap(corr_matrix):
-    plt.imshow(corr_matrix)
+    plt.imshow(corr_matrix, vmin=-1, vmax=1, cmap="coolwarm")
     plt.colorbar()
     plt.title("Channel Correlation Heatmap")
 
