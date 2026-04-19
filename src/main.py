@@ -62,9 +62,12 @@ X_coupled, freqs = mdct_coupling(channels_mdct, sr)
 plot_mdct_spectrum(freqs, channels_mdct[0], X_coupled[:,0],
                    "MDCT Spectrum Before vs After Coupling")
 
+#stack các channel để xử lý đa kênh
+combined_mdct = np.stack(channels_mdct, axis=1)  
+
 #residual
 residual = compute_residual(combined_mdct)
-
+residual_flat = residual.flatten()
 residual_analysis(combined_mdct, residual)
 
 #histogram dùng sample
