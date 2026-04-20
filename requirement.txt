@@ -1,0 +1,7 @@
+numpy
+matplotlib.pyplot
+soundfile
+zlib
+streamlit
+os
+tempfile
