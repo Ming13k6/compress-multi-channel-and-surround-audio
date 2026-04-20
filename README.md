@@ -1,6 +1,6 @@
 # 🎧 Multi-Channel Audio Compression System
 
-## 📌 Overview
+##  Overview
 
 This project implements a **multi-channel audio compression pipeline** combining:
 
@@ -14,7 +14,7 @@ The system provides an **interactive Streamlit-based UI**, allowing users to exp
 
 ---
 
-## 🎯 Objectives
+##  Objectives
 
 - Reduce redundancy in multi-channel audio
 - Achieve efficient compression
@@ -23,7 +23,7 @@ The system provides an **interactive Streamlit-based UI**, allowing users to exp
 
 ---
 
-## 🧠 System Pipeline
+##  System Pipeline
 Input Audio
 ↓
 PCA (optional)
@@ -46,7 +46,7 @@ Reconstructed Audio
 
 ---
 
-## ⚙️ Features
+##  Features
 
 ### 🔥 Core Compression
 - Multi-channel audio support
@@ -58,7 +58,7 @@ Reconstructed Audio
 
 ---
 
-### 🎧 Interactive UI (Streamlit)
+###  Interactive UI (Streamlit)
 - Upload `.wav` audio files
 - Adjustable compression via **Quality slider**
 - Toggle PCA decorrelation
@@ -67,20 +67,20 @@ Reconstructed Audio
 
 ---
 
-### 📊 Metrics
+###  Metrics
 - **SNR (Signal-to-Noise Ratio)**
 - **Compression Ratio**
 - **Bitrate (total & per-channel)**
 
 ---
 
-### 📈 Visualization
+###  Visualization
 - Waveform comparison
 - Spectrogram comparison (optional)
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 compress-multi-channel-and-surround-audio/
 │
 ├── src/
@@ -100,7 +100,7 @@ compress-multi-channel-and-surround-audio/
 
 ---
 
-## 🧪 Installation
+##  Installation
 
 ### 1. Install Python
 ```bash
@@ -108,14 +108,14 @@ python --version
 # Python >= 3.10 recommended
 pip install numpy matplotlib soundfile streamlit
 ```
-▶️ How to Run
+ How to Run
 Run interactive UI:
 ```bash
 cd src
 python -m streamlit run app.py
 ```
 then open http://localhost:8501
-🔁 Reproducibility
+ Reproducibility
 Audio file: WAV (stereo recommended)
 Duration: 5 seconds
 Quality slider: 0.7
@@ -126,7 +126,7 @@ Expected Results
 SNR ≈ 6–10 dB
 Compression Ratio ≈ 7–9x
 Bitrate significantly reduced
-📊 Evaluation Metrics
+ Evaluation Metrics
 1. Signal-to-Noise Ratio (SNR)
 SNR = 10 * log10(signal_power / noise_power)
 
@@ -139,24 +139,24 @@ Measures compression efficiency.
 
 3. Bitrate
 bitrate = (compressed_size * 8 * sample_rate) / num_samples
-📊 Results & Observations
+ Results & Observations
 PCA reduces inter-channel redundancy but has limited impact when channel correlation is low
 MDCT enables efficient frequency-domain compression
 Channel coupling reduces high-frequency redundancy
 Residual prediction helps capture temporal dependencies
-⚠️ Trade-offs & Limitations
+ Trade-offs & Limitations
 Higher compression → increased noise/artifacts
 Dead-zone quantization removes small signals → potential distortion
 Coupling may degrade high-frequency details
 No psychoacoustic model (unlike MP3/AAC)
 MDCT implementation is simplified
-🚀 Future Work
+ Future Work
 Add psychoacoustic masking
 Adaptive quantization
 Improved residual modeling
 Real-time streaming support
 GPU acceleration
-🎥 Demo
+ Demo
 
 The system demonstrates:
 
@@ -164,7 +164,7 @@ Real-time compression
 Audio playback comparison
 Interactive parameter tuning
 Visualization (waveform + spectrogram)
-👨‍💻 Author
+ Author
 Phạm Trần Tuấn Minh
-📜 License
+ License
 This project is for educational purposes.
