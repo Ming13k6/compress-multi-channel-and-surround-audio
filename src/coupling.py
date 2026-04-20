@@ -28,7 +28,7 @@ def mdct_coupling(channels_mdct, sr, cutoff=4000):
         block = X[b]
 
         #high freq energy trung bình
-        high_energy = np.mean(np.abs(block[high_idx]), axis=1, keepdims=True)
+        high_energy = np.median(block[high_idx], axis=1, keepdims=True)
 
         #apply coupling
         block_coupled = block.copy()

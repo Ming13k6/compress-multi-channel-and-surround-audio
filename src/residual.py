@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 def temporal_predict(signal):
     predicted = np.zeros_like(signal)
     predicted[1:, :] = signal[:-1, :]
+
     return predicted
 
 

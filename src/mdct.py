@@ -7,32 +7,28 @@ def sine_window(N):
 
 
 def mdct(signal, M=512):
-   
     N = 2 * M
     hop = M
 
-    #padding để signal chia hết các block
     pad = (N - len(signal) % hop) % hop
     signal = np.concatenate([signal, np.zeros(pad)])
 
     window = sine_window(N)
 
+    # 🔥 tính 1 lần
+    n = np.arange(N)
+    k = np.arange(M)
+    cos_term = np.cos(
+        np.pi / M * (n[:, None] + 0.5 + M/2) * (k + 0.5)
+    )
+
     blocks = []
     for i in range(0, len(signal) - N + 1, hop):
         block = signal[i:i+N] * window
-
-        n = np.arange(N)
-        k = np.arange(M)
-
-        cos_term = np.cos(
-            np.pi / M * (n[:, None] + 0.5 + M/2) * (k + 0.5)
-        )
-
         coeffs = block @ cos_term
         blocks.append(coeffs)
 
     return np.array(blocks)
-
 
 def imdct(mdct_coeffs, M=512):
     num_blocks = mdct_coeffs.shape[0]
