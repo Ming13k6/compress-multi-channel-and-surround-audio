@@ -48,7 +48,7 @@ Reconstructed Audio
 
 ##  Features
 
-### 🔥 Core Compression
+###  Core Compression
 - Multi-channel audio support
 - PCA-based decorrelation
 - MDCT transform (512-point window)
