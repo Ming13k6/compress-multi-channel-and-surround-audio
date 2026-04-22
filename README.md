@@ -80,38 +80,38 @@ Reconstructed Audio
 
 ---
 
+## 📂 Project Structure
+```
 compress-multi-channel-and-surround-audio/
 │
-├── src/                         # Source code chính
-│   ├── app.py                   # Streamlit UI
-│   ├── main.py                  # CLI pipeline (chạy test)
+├── src/
+│ ├── app.py
+│ ├── main.py
+│ ├── audio_io.py
+│ ├── mdct.py
+│ ├── transform.py
+│ ├── coupling.py
+│ ├── residual.py
+│ ├── compressor.py
+│ ├── metrics.py
+│ ├── analysis.py
 │
-│   ├── audio_io.py              # Load / save audio
-│   ├── mdct.py                  # MDCT / IMDCT transform
-│   ├── transform.py             # PCA decorrelation
-│   ├── coupling.py              # Channel coupling + spectrum plot
-│   ├── residual.py              # Residual prediction / reconstruction
-│   ├── compressor.py            # Quantization + zlib
-│   ├── metrics.py               # SNR, bitrate, compression ratio
-│   ├── analysis.py              # Correlation + heatmap
+├── data/
+│ └── test.wav
 │
-├── data/                        # Input audio files
-│   └── test.wav
+├── output/
+│ └── reconstructed.wav
 │
-├── output/                      # Output audio (reconstructed)
-│   └── reconstructed.wav
+├── assets/
+│ ├── ui_main.png
+│ ├── ui_output.png
+│ ├── heatmap.png
+│ ├── mdct_spectrum.png
+│ └── residual_distribution.png
 │
-├── assets/                  
-│   ├── ui_main.png
-│   ├── ui_output.png
-│   ├── heatmap.png
-│   ├── mdct_spectrum.png
-│   └── residual_distribution.png
-│
-├── README.md                   # Project description
-└── requirements.txt            # Dependencies
----
-
+├── README.md
+└── requirements.txt
+```
 ##  Installation
 
 ### 1. Install Python
