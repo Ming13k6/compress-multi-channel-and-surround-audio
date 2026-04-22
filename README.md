@@ -80,7 +80,7 @@ Reconstructed Audio
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 ```
 compress-multi-channel-and-surround-audio/
 │
@@ -101,40 +101,124 @@ compress-multi-channel-and-surround-audio/
 │
 ├── output/
 │ └── reconstructed.wav
-│
-├── assets/
-│ ├── ui_main.png
-│ ├── ui_output.png
-│ ├── heatmap.png
-│ ├── mdct_spectrum.png
-│ └── residual_distribution.png
-│
 ├── README.md
 └── requirements.txt
 ```
 ##  Installation
 
-### 1. Install Python
-```bash
-python --version
-# Python >= 3.10 recommended
-pip install numpy matplotlib soundfile streamlit
-```
- How to Run
-Run interactive UI:
-```bash
-cd src
-python -m streamlit run app.py
-```
-then open http://localhost:8501
- Reproducibility
-Audio file: WAV (stereo recommended)
-Duration: 5 seconds
-Quality slider: 0.7
-PCA: ON
-Fast mode: ON
+1. Prerequisites
 
-Expected Results
+Before running the project, make sure the following software is installed on your machine:
+
+Python 3.10 or higher
+pip (Python package manager)
+
+To verify your installation, run:
+```
+python --version
+pip --version
+```
+If pip is not recognized, you can use:
+```
+python -m pip --version
+```
+2. Clone or Download the Project
+
+If using Git:
+```
+git clone <your-repository-link>
+cd compress-multi-channel-and-surround-audio
+```
+If not using Git, download the project as a ZIP file and extract it, then open the project folder.
+
+3. Create a Virtual Environment (Recommended)
+
+It is recommended to create a virtual environment to avoid package conflicts.
+
+On Windows
+```
+python -m venv venv
+venv\Scripts\activate
+```
+On macOS / Linux
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+After activation, your terminal should show something like:
+(venv)
+4. Install Required Dependencies
+
+This project uses the following Python libraries:
+
+numpy
+matplotlib
+soundfile
+streamlit
+Preferred method: install from requirements.txt
+
+Make sure the file requirements.txt exists in the project root with the following content:
+
+numpy
+matplotlib
+soundfile
+streamlit
+
+Run:
+```
+pip install -r requirements.txt
+```
+If pip does not work directly, use:
+```
+python -m pip install -r requirements.txt
+```
+Manual Installation (If Needed)
+```
+python -m pip install numpy matplotlib soundfile streamlit
+```
+Verify Installation
+```
+python -c "import numpy, matplotlib, soundfile, streamlit; print('All dependencies installed successfully!')"
+```
+
+## How to run
+1. Run the Interactive UI (Recommended)
+
+The project provides a Streamlit-based interface for interactive testing.
+```
+cd src
+python -m streamlit run src/app.py
+```
+After running the command, open your browser and go to:
+
+http://localhost:8501
+2. Using the UI
+
+Inside the interface:
+
+1, Upload a .wav audio file
+2, Adjust parameters:
+Duration: select how many seconds to process
+Quality slider: controls compression strength
+PCA toggle: enable/disable channel decorrelation
+Fast mode: speeds up processing (lower accuracy)
+3, Click Run Compression
+3. Output
+
+After processing, the UI will display:
+
+- Playback (original vs reconstructed)
+- Metrics:
+SNR (Signal-to-Noise Ratio)
+Compression Ratio
+Bitrate (total & per-channel)
+- Visualizations:
+Waveform comparison
+Spectrogram (optional)
+
+## Reproducibility
+
+## Expected Results
 SNR ≈ 6–10 dB
 Compression Ratio ≈ 7–9x
 Bitrate significantly reduced
@@ -176,7 +260,8 @@ Real-time compression
 Audio playback comparison
 Interactive parameter tuning
 Visualization (waveform + spectrogram)
- Author
+Author
 Phạm Trần Tuấn Minh
+Hoàng Lê Minh
  License
 This project is for educational purposes.
