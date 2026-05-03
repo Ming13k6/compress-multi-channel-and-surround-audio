@@ -183,10 +183,10 @@ python -c "import numpy, matplotlib, soundfile, streamlit; print('All dependenci
 
 ## How to run
 1. Run the Interactive UI (Recommended)
+Make sure your terminal is currently at ...\compress-multi-channel-and-surround-audio
 
 The project provides a Streamlit-based interface for interactive testing.
 ```
-cd src
 python -m streamlit run src/app.py
 ```
 After running the command, open your browser and go to:
