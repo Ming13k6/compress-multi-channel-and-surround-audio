@@ -34,7 +34,12 @@ plot_correlation_heatmap(corr_before)
 
 #PCA
 transformed, eigvecs, mean = pca_decorrelation(data)
+corr_pca = compute_correlation_matrix(transformed)
 
+print("Correlation AFTER PCA:")
+print(corr_pca)
+
+plot_correlation_heatmap(corr_pca)
 #chứng minh PCA orthogonal
 energy_before = np.sum(data**2)
 energy_after = np.sum(transformed**2)
