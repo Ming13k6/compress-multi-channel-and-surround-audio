@@ -216,11 +216,11 @@ Bitrate (total & per-channel)
 Waveform comparison
 Spectrogram (optional)
 
-## Reproducibility
+##   Reproducibility
 
-## Expected Results
-SNR ≈ 6–10 dB
-Compression Ratio ≈ 7–9x
+##   Expected Results
+SNR ≈ 6–20 dB
+Compression Ratio ≈ 7–15x
 Bitrate significantly reduced
  Evaluation Metrics
 1. Signal-to-Noise Ratio (SNR)
@@ -235,18 +235,21 @@ Measures compression efficiency.
 
 3. Bitrate
 bitrate = (compressed_size * 8 * sample_rate) / num_samples
- Results & Observations
+
+##Results & Observations
 PCA reduces inter-channel redundancy but has limited impact when channel correlation is low
 MDCT enables efficient frequency-domain compression
 Channel coupling reduces high-frequency redundancy
 Residual prediction helps capture temporal dependencies
- Trade-offs & Limitations
+
+##   Trade-offs & Limitations
 Higher compression → increased noise/artifacts
 Dead-zone quantization removes small signals → potential distortion
 Coupling may degrade high-frequency details
 No psychoacoustic model (unlike MP3/AAC)
 MDCT implementation is simplified
- Future Work
+
+##   Future Work
 Add psychoacoustic masking
 Adaptive quantization
 Improved residual modeling
@@ -254,7 +257,7 @@ Real-time streaming support
 GPU acceleration
 Improve MDCT and explore other transforms for better reconstruction quality
 Cross-platform deployment
- Demo
+##   Demo
 
 The system demonstrates:
 
@@ -262,8 +265,9 @@ Real-time compression
 Audio playback comparison
 Interactive parameter tuning
 Visualization (waveform + spectrogram)
-Author
+
+##   Author
 Phạm Trần Tuấn Minh
 Hoàng Lê Minh
- License
+##  License
 This project is for educational purposes.
