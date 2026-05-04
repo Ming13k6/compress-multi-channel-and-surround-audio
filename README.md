@@ -252,6 +252,8 @@ Adaptive quantization
 Improved residual modeling
 Real-time streaming support
 GPU acceleration
+Improve MDCT and explore other transforms for better reconstruction quality
+Cross-platform deployment
  Demo
 
 The system demonstrates:
