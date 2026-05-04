@@ -25,23 +25,23 @@ The system provides an **interactive Streamlit-based UI**, allowing users to exp
 
 ##  System Pipeline
 Input Audio
-↓
+->
 PCA (optional)
-↓
+->
 MDCT (per channel)
-↓
+->
 Channel Coupling (high-frequency)
-↓
+->
 Residual Prediction
-↓
+->
 Quantization + zlib Compression
-↓
+->
 Decompression
-↓
+->
 IMDCT
-↓
+->
 Inverse PCA
-↓
+->
 Reconstructed Audio
 
 ---
