@@ -1,7 +1,5 @@
 numpy
 matplotlib
 soundfile
-zlib
 streamlit
-os
-tempfile
+
