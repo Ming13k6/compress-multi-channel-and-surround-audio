@@ -23,7 +23,7 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("🎧 Multi-Channel Audio Compression System")
+st.title(" Multi-Channel Audio Compression System")
 st.markdown("Interactive demo for PCA + MDCT + Residual Compression")
 
 
@@ -61,9 +61,9 @@ st.sidebar.header("Controls")
 
 duration = st.sidebar.slider("⏱ Audio duration (seconds)", 2, 10, 5)
 quality = st.sidebar.slider("🎚 Quality ↔ Compression", 0.0, 1.0, 0.7)
-use_pca = st.sidebar.checkbox("🧠 Use PCA", True)
-fast_mode = st.sidebar.checkbox("⚡ Fast mode", True)
-show_spectrogram = st.sidebar.checkbox("📊 Show spectrogram", True)
+use_pca = st.sidebar.checkbox(" Use PCA", True)
+fast_mode = st.sidebar.checkbox(" Fast mode", True)
+show_spectrogram = st.sidebar.checkbox(" Show spectrogram", True)
 
 # Quality mapping
 qbits = int(8 + quality * 8)             # 8 -> 16 bits
@@ -74,11 +74,11 @@ st.sidebar.write(f"**qbits:** {qbits}")
 st.sidebar.write(f"**deadzone:** {deadzone:.6f}")
 
 if quality < 0.3:
-    st.sidebar.warning("⚡ High Compression Mode")
+    st.sidebar.warning("High Compression Mode")
 elif quality < 0.7:
-    st.sidebar.info("⚖ Balanced Mode")
+    st.sidebar.info("Balanced Mode")
 else:
-    st.sidebar.success("🎧 High Quality Mode")
+    st.sidebar.success("High Quality Mode")
 
 
 
@@ -108,14 +108,14 @@ if uploaded_file is not None:
         data = data[::2]
         sr = sr // 2
 
-    st.subheader("🎧 Original Audio")
+    st.subheader("Original Audio")
     original_preview = to_stereo_for_preview(data)
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_orig:
         sf_path = tmp_orig.name
     save_audio(sf_path, original_preview, sr)
     st.audio(sf_path)
 
-    if st.button("🚀 Run Compression", type="primary"):
+    if st.button("Run Compression", type="primary"):
         with st.spinner("Processing audio..."):
             
             # PCA / NO PCA
@@ -212,12 +212,12 @@ if uploaded_file is not None:
                 out_path = tmp_out.name
             save_audio(out_path, reconstructed_preview, sr)
 
-        st.success("✅ Compression complete")
+        st.success("Compression complete!")
 
         
         # METRICS
        
-        st.subheader("📊 Metrics")
+        st.subheader("Metrics")
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("SNR (dB)", f"{snr:.2f}")
         m2.metric("Compression Ratio", f"{cr:.2f}")
@@ -227,7 +227,7 @@ if uploaded_file is not None:
         
         # PLAYBACK COMPARISON
         
-        st.subheader("🎧 Playback Comparison")
+        st.subheader("Playback Comparison")
         a1, a2 = st.columns(2)
 
         with a1:
@@ -241,7 +241,7 @@ if uploaded_file is not None:
         
         # WAVEFORM COMPARISON
         
-        st.subheader("📈 Waveform Comparison")
+        st.subheader("Waveform Comparison")
         wave_col1, wave_col2 = st.columns(2)
 
         with wave_col1:
@@ -256,7 +256,7 @@ if uploaded_file is not None:
         # OPTIONAL SPECTROGRAM
         
         if show_spectrogram:
-            st.subheader("📊 Spectrogram Comparison")
+            st.subheader("Spectrogram Comparison")
             spec_col1, spec_col2 = st.columns(2)
 
             orig_sig = data_eval[:, 0] if data_eval.ndim > 1 else data_eval
