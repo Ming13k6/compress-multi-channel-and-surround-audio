@@ -95,7 +95,10 @@ plot_mdct_spectrum(
 )
 
 #stack các channel để xử lý đa kênh
-combined_mdct = np.transpose(X_coupled, (0, 2, 1)).astype(np.float32)
+combined_mdct = np.array(
+    X_coupled,
+    dtype=np.float32
+)
 
 #residual
 residual = compute_residual(combined_mdct)
@@ -124,7 +127,7 @@ print("Compressed size:", len(compressed))
 #reconstruct
 residual_decoded = decompress_data(compressed, meta)
 reconstructed_res = reconstruct_from_residual(residual_decoded)
-reconstructed_mdct = np.transpose(reconstructed_res, (0, 2, 1))
+reconstructed_mdct = reconstructed_res
 print("reconstructed_mdct shape:", reconstructed_mdct.shape)
 
 #inverse MDCT
