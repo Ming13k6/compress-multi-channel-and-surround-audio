@@ -65,6 +65,7 @@ def render_spectrogram(signal: np.ndarray, sr: int, title: str):
 
 st.sidebar.header("Controls")
 
+<<<<<<< HEAD
 duration = st.sidebar.slider(
     "⏱ Audio duration (seconds)",
     2,
@@ -89,6 +90,13 @@ show_spectrogram = st.sidebar.checkbox(
 )
 
 
+=======
+duration = st.sidebar.slider("⏱ Audio duration (seconds)", 2, 10, 5)
+quality = st.sidebar.slider("🎚 Quality ↔ Compression", 0.0, 1.0, 0.7)
+use_pca = st.sidebar.checkbox(" Use PCA", True)
+fast_mode = st.sidebar.checkbox(" Fast mode", True)
+show_spectrogram = st.sidebar.checkbox(" Show spectrogram", True)
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
 
 # Quality mapping
 
@@ -106,10 +114,15 @@ st.sidebar.write(f"**deadzone:** {deadzone:.6f}")
 
 if quality < 0.3:
     st.sidebar.warning("High Compression Mode")
+<<<<<<< HEAD
 
 elif quality < 0.7:
     st.sidebar.info("Balanced Mode")
 
+=======
+elif quality < 0.7:
+    st.sidebar.info("Balanced Mode")
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
 else:
     st.sidebar.success("High Quality Mode")
 
@@ -162,6 +175,7 @@ if uploaded_file is not None:
 
     if fast_mode:
 
+<<<<<<< HEAD
         preview_data = preview_data[::2]
 
         preview_sr = sr // 2
@@ -196,6 +210,11 @@ if uploaded_file is not None:
         suffix=".wav"
     ) as tmp_orig:
 
+=======
+    st.subheader("Original Audio")
+    original_preview = to_stereo_for_preview(data)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_orig:
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
         sf_path = tmp_orig.name
 
     save_audio(
@@ -206,12 +225,16 @@ if uploaded_file is not None:
 
     st.audio(sf_path)
 
+<<<<<<< HEAD
 
 
     # RUN PIPELINE
 
     if st.button("Run Compression", type="primary"):
 
+=======
+    if st.button("Run Compression", type="primary"):
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
         with st.spinner("Processing audio..."):
 
 
@@ -417,6 +440,10 @@ if uploaded_file is not None:
 
                 out_path = tmp_out.name
 
+<<<<<<< HEAD
+=======
+        st.success("Compression complete!")
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
 
 
             save_audio(
@@ -432,6 +459,16 @@ if uploaded_file is not None:
 
 
         # METRICS
+<<<<<<< HEAD
+=======
+       
+        st.subheader("Metrics")
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("SNR (dB)", f"{snr:.2f}")
+        m2.metric("Compression Ratio", f"{cr:.2f}")
+        m3.metric("Bitrate (kbps)", f"{bitrate / 1000:.1f}")
+        m4.metric("Per-channel bitrate (kbps)", f"{bitrate_per_channel / 1000:.1f}")
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
 
         st.subheader("Metrics")
 
@@ -460,9 +497,14 @@ if uploaded_file is not None:
 
 
         # PLAYBACK COMPARISON
+<<<<<<< HEAD
 
         st.subheader("Playback Comparison")
 
+=======
+        
+        st.subheader("Playback Comparison")
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
         a1, a2 = st.columns(2)
 
         with a1:
@@ -495,9 +537,14 @@ if uploaded_file is not None:
 
 
         # WAVEFORM COMPARISON
+<<<<<<< HEAD
 
         st.subheader("Waveform Comparison")
 
+=======
+        
+        st.subheader("Waveform Comparison")
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
         wave_col1, wave_col2 = st.columns(2)
 
         with wave_col1:
@@ -521,11 +568,15 @@ if uploaded_file is not None:
         # OPTIONAL SPECTROGRAM
 
         if show_spectrogram:
+<<<<<<< HEAD
 
             st.subheader(
                 "Spectrogram Comparison"
             )
 
+=======
+            st.subheader("Spectrogram Comparison")
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
             spec_col1, spec_col2 = st.columns(2)
 
             orig_sig = (
@@ -549,9 +600,13 @@ if uploaded_file is not None:
                 )
 
             with spec_col2:
+<<<<<<< HEAD
 
                 render_spectrogram(
                     recon_sig[:50000],
                     sr,
                     "Reconstructed Spectrogram"
                 )
+=======
+                render_spectrogram(recon_sig[:50000], sr, "Reconstructed Spectrogram")
+>>>>>>> 54b62fdd692ca1f1be157d9980bdc553e9f59ff2
