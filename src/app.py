@@ -59,8 +59,8 @@ def render_spectrogram(signal: np.ndarray, sr: int, title: str):
 
 st.sidebar.header("Controls")
 
-duration = st.sidebar.slider("⏱ Audio preview duration (seconds)", 2, 10, 5)
-quality = st.sidebar.slider("🎚 Quality ↔ Compression", 0.0, 1.0, 0.7)
+duration = st.sidebar.slider(" Audio preview duration (seconds)", 2, 10, 5)
+quality = st.sidebar.slider(" Compression ↔ Quality ", 0.0, 1.0, 0.7)
 use_pca = st.sidebar.checkbox(" Use PCA", True)
 fast_mode = st.sidebar.checkbox(" Fast mode", True)
 show_spectrogram = st.sidebar.checkbox(" Show spectrogram", True)
